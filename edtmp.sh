@@ -5,7 +5,7 @@ _EDTMP_DFLT_BASE_DIR="/tmp/edtmp"
 _EDTMP_DFLT_NOTE_DIR="notes"
 _EDTMP_DFLT_TMP_DIR="scratch"
 _EDTMP_DFLT_FILE_EXT="tmp"
-_VERSION="0.1.0"
+_VERSION="{{VERSION}}"
 
 # To customize directories and file extension, set following environment variables
 # _EDTMP_BASE_DIR
