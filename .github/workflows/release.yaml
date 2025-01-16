@@ -7,7 +7,7 @@ on:
 
 env:
   SCRIPT_RELEASE_FILE: edtmp_${{ github.ref_name }}.sh
-  SCRIPT_RELEASE_PKG: edtmp_${{ github.ref_name }}_scripts.tar.gz
+  SCRIPT_RELEASE_PKG: edtmp_${{ github.ref_name }}.tar.gz
 
 jobs:
   pack_scripts:
