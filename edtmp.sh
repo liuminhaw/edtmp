@@ -1,17 +1,17 @@
 #! /bin/bash
 #
 # This script is used to create a temporary file and open it in default text editor.
-_DEFAULT_BASE_DIR="/tmp/edtmp"
-_DEFAULT_NOTE_DIR="notes"
-_DEFAULT_TMP_DIR="scratch"
-_DEFAULT_FILE_EXT="tmp"
+_EDTMP_DFLT_BASE_DIR="/tmp/edtmp"
+_EDTMP_DFLT_NOTE_DIR="notes"
+_EDTMP_DFLT_TMP_DIR="scratch"
+_EDTMP_DFLT_FILE_EXT="tmp"
 _VERSION="0.1.0"
 
-# Set custom directories and file extension, otherwise default values will be used.
-# _BASE_DIR=""
-# _NOTE_DIR=""
-# _TMP_DIR=""
-# _FILE_EXT=""
+# To customize directories and file extension, set following environment variables
+# _EDTMP_BASE_DIR
+# _EDTMP_NOTE_DIR
+# _EDTMP_TMP_DIR
+# _EDTMP_FILE_EXT
 
 # ----------------------------------------------------------------------------
 # Show script usage
@@ -23,7 +23,7 @@ show_help() {
 Usage: ${0##*/} [OPTION]... [ACTION] [TARGET]
 
 General options: 
-    --help              Display this help and exit
+    --help | -h         Display this help and exit
     --version | -v      Output version information and exit
 
 Actions:
@@ -32,12 +32,12 @@ Actions:
 - view [PATH]                 
     Open the path file or directory in the text editor
         
-- note [-d --dir=directory ] PATH      
+- note [-d --dir=directory] PATH      
     Open a named file (note file) or path in the text editor. 
     If a directory is provided, the file will be stored in that directory.
     If no directory is provided, the file will be stored in the default "notes" directory.
 
-- scratch [-d --dir=directory] [EXTENSION}H]    
+- scratch [-d --dir=directory] [EXTENSION]    
     Open a scratch file (temp file) in the text editor.
     If a directory is provided, the file will be stored in that directory.
     If no directory is provided, the file will be stored in the default "scratch" directory.
@@ -46,10 +46,10 @@ Actions:
 
 Customizations:
     The script can be customized by setting the following variables:
-    _BASE_DIR: Base directory to store temporary files
-    _NOTE_DIR: Default directory to store notes
-    _TMP_DIR: Default directory to store temporary files
-    _FILE_EXT: Default file extension for the scratch file if not explicitly set
+    _EDTMP_BASE_DIR: Base directory to store temporary files
+    _EDTMP_NOTE_DIR: Default directory to store notes
+    _EDTMP_TMP_DIR: Default directory to store temporary files
+    _EDTMP_FILE_EXT: Default file extension for the scratch file if not explicitly set
 EOF
 }
 
@@ -57,29 +57,29 @@ EOF
 # Set global variables and basic file structures for the script
 #
 # Globals:
-#   _BASE_DIR: Base directory to store temporary files
-#   _NOTE_DIR: Directory to store notes
-#   _TMP_DIR: Directory to store temporary files
-#   _FILE_EXT: Default file extension for the opened file if not explicitly set
+#   _EDTMP_BASE_DIR: Base directory to store temporary files
+#   _EDTMP_NOTE_DIR: Directory to store notes
+#   _EDTMP_TMP_DIR: Directory to store temporary files
+#   _EDTMP_FILE_EXT: Default file extension for the opened file if not explicitly set
 # ----------------------------------------------------------------------------
 setup() {
-	if [[ -z "${_BASE_DIR}" ]]; then
-		_BASE_DIR="${_DEFAULT_BASE_DIR}"
+	if [[ -z "${_EDTMP_BASE_DIR}" ]]; then
+		_EDTMP_BASE_DIR="${_EDTMP_DFLT_BASE_DIR}"
 	fi
 
-	if [[ -z "${_NOTE_DIR}" ]]; then
-		_NOTE_DIR="${_DEFAULT_NOTE_DIR}"
+	if [[ -z "${_EDTMP_NOTE_DIR}" ]]; then
+		_EDTMP_NOTE_DIR="${_EDTMP_DFLT_NOTE_DIR}"
 	fi
 
-	if [[ -z "${_TMP_DIR}" ]]; then
-		_TMP_DIR="${_DEFAULT_TMP_DIR}"
+	if [[ -z "${_EDTMP_TMP_DIR}" ]]; then
+		_EDTMP_TMP_DIR="${_EDTMP_DFLT_TMP_DIR}"
 	fi
 
-	if [[ -z "${_FILE_EXT}" ]]; then
-		_FILE_EXT="${_DEFAULT_FILE_EXT}"
+	if [[ -z "${_EDTMP_FILE_EXT}" ]]; then
+		_EDTMP_FILE_EXT="${_EDTMP_DFLT_FILE_EXT}"
 	fi
 
-	mkdir -p "${_BASE_DIR}"
+	mkdir -p "${_EDTMP_BASE_DIR}"
 }
 
 # ----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ check_editor() {
 # Open the target file in the text editor.
 #
 # Globals:
-#   _BASE_DIR
+#   _EDTMP_BASE_DIR
 #   _EDITOR
 #
 # Arguments:
@@ -136,7 +136,7 @@ run_editor() {
 	local _current_path
 	_current_path=$(pwd)
 
-	pushd "${_BASE_DIR}" >/dev/null || return 11
+	pushd "${_EDTMP_BASE_DIR}" >/dev/null || return 11
 	${_EDITOR} "${_target}"
 	popd >/dev/null || return 11
 }
@@ -146,7 +146,7 @@ run_editor() {
 # If path is not provided, open the base directory.
 #
 # Globals:
-#   _BASE_DIR
+#   _EDTMP_BASE_DIR
 #   _EDITOR
 #
 # Arguments:
@@ -160,9 +160,9 @@ view_file() {
 	_current_path=$(pwd)
 
 	if [[ -z "${1}" ]]; then
-		local _path="${_BASE_DIR}/."
-	elif [[ -e "${_BASE_DIR}/${1}" ]]; then
-		local _path="${_BASE_DIR}/${1}"
+		local _path="${_EDTMP_BASE_DIR}/."
+	elif [[ -e "${_EDTMP_BASE_DIR}/${1}" ]]; then
+		local _path="${_EDTMP_BASE_DIR}/${1}"
 	fi
 
 	if ! run_editor "${_path}"; then
@@ -174,13 +174,13 @@ view_file() {
 # Open a note file (file with specific filename) in the text editor.
 #
 # Globals:
-#   _BASE_DIR
-#   _NOTE_DIR
+#   _EDTMP_BASE_DIR
+#   _EDTMP_NOTE_DIR
 #   _EDITOR
 #
 # Arguments:
 #   filepath to open in the text editor
-#   directory to store the note file, use _NOTE_DIR if value is empty
+#   directory to store the note file, use _EDTMP_NOTE_DIR if value is empty
 #
 # Returns:
 #   Non-zero if error occurs
@@ -199,10 +199,10 @@ edit_note() {
 		exit 1
 	fi
 	if [[ -z "${_dir_opt}" ]]; then
-		_dir_opt="${_NOTE_DIR}"
+		_dir_opt="${_EDTMP_NOTE_DIR}"
 	fi
 
-	local _note_path="${_BASE_DIR}/${_dir_opt}/${_path}"
+	local _note_path="${_EDTMP_BASE_DIR}/${_dir_opt}/${_path}"
 	if ! mkdir -p "$(dirname "${_note_path}")"; then
 		return 11
 	fi
@@ -221,13 +221,13 @@ edit_note() {
 # Open a scratch file (file with random name in format edtmp.XXXXXXXX.{ext} in the text editor.
 #
 # Globals:
-#   _BASE_DIR
-#   _TMP_DIR
+#   _EDTMP_BASE_DIR
+#   _EDTMP_TMP_DIR
 #   _EDITOR
 #
 # Arguments:
-#   file extension of the scratch file, use _FILE_EXT if value is empty
-#   directory to store the scratch file, use _TMP_DIR if value is empty
+#   file extension of the scratch file, use _EDTMP_FILE_EXT if value is empty
+#   directory to store the scratch file, use _EDTMP_TMP_DIR if value is empty
 # ----------------------------------------------------------------------------
 edit_scratch() {
 	if [[ ${#} -ne 2 ]]; then
@@ -239,18 +239,18 @@ edit_scratch() {
 	local _dir_opt="${2}"
 
 	if [[ -z "${_file_ext}" ]]; then
-		_file_ext="${_FILE_EXT}"
+		_file_ext="${_EDTMP_FILE_EXT}"
 	fi
 	if [[ -z "${_dir_opt}" ]]; then
-		_dir_opt="${_TMP_DIR}"
+		_dir_opt="${_EDTMP_TMP_DIR}"
 	fi
 
-	if ! mkdir -p "${_BASE_DIR}/${_dir_opt}"; then
+	if ! mkdir -p "${_EDTMP_BASE_DIR}/${_dir_opt}"; then
 		return 11
 	fi
 
 	local _tempfile
-	_tempfile=$(mktemp "${_BASE_DIR}/${_dir_opt}/edtmp.XXXXXXXX.${_file_ext}")
+	_tempfile=$(mktemp "${_EDTMP_BASE_DIR}/${_dir_opt}/edtmp.XXXXXXXX.${_file_ext}")
 
 	if ! run_editor "${_tempfile}"; then
 		echo $?
@@ -275,7 +275,7 @@ main() {
 	local _dir_opt
 	while :; do
 		case ${1} in
-		--help)
+		--help | -h)
 			show_help
 			exit
 			;;
